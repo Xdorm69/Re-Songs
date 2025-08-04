@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { FileQuestionMark, Files, TriangleAlert } from "lucide-react";
+import { FileQuestionMark, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { getBackendUrl } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,65 +24,73 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { handleSortDialogButton } from "../_fetchHooks/HandleDialogButton";
 
-
-export default function SortSongsDialog({unmatched}: {unmatched: string[]}) {
+export default function SortSongsDialog({
+  unmatched,
+}: {
+  unmatched: string[];
+}) {
   const [secret, setSecret] = useState("");
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
   return (
     <div className="flex items-center gap-2">
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          <FileQuestionMark className="mr-2 h-4 w-4" />
-          View Unmatched Songs
-        </Button>
-      </DialogTrigger>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline">
+            <FileQuestionMark className="mr-2 h-4 w-4" />
+            View Unmatched Songs
+          </Button>
+        </DialogTrigger>
 
-      <DialogContent className="min-w-3xl">
-        <DialogHeader>
-          <DialogTitle>Unmatched Songs</DialogTitle>
-          <DialogDescription>
-            These songs did not match with your database structure. Please review them below.
-          </DialogDescription>
-        </DialogHeader>
+        <DialogContent className="min-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Unmatched Songs</DialogTitle>
+            <DialogDescription>
+              These songs did not match with your database structure. Please
+              review them below.
+            </DialogDescription>
+          </DialogHeader>
 
-        <ScrollArea className="max-h-[400px] border rounded-md">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[60px]">#</TableHead>
-                <TableHead>Song (Raw String)</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {unmatched.length > 0 ? (
-                unmatched.map((song, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell className="text-sm">{song}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
+          <ScrollArea className="max-h-[400px] border rounded-md">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={2} className="text-center text-muted-foreground">
-                    No unmatched songs found.
-                  </TableCell>
+                  <TableHead className="w-[60px]">#</TableHead>
+                  <TableHead>Song (Raw String)</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </ScrollArea>
+              </TableHeader>
+              <TableBody>
+                {unmatched.length > 0 ? (
+                  unmatched.map((song, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell className="text-sm">{song}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={2}
+                      className="text-center text-muted-foreground"
+                    >
+                      No unmatched songs found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </ScrollArea>
 
-        <DialogFooter className="pt-4">
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <DialogFooter className="pt-4">
+            <DialogClose asChild>
+              <Button variant="outline">Close</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
@@ -130,37 +138,10 @@ export default function SortSongsDialog({unmatched}: {unmatched: string[]}) {
               variant="destructive"
               disabled={secret.length !== 10}
               onClick={async () => {
-                console.log("Sorting with secret:", secret);
-                toast.loading("Sorting Songs", { id: "songs" });
                 try {
-                  const res = await fetch(getBackendUrl() + "/api/rename", {
-                    method: "PUT",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ secret }),
-                  });
-                  setSecret("");
-                  const data = await res.json();
-                  if (res.ok) {
-                    toast.success(data.message, {
-                      id: "songs",
-                    });
-                  } else {
-                    toast.error("Error: " + data.message, {
-                      id: "songs",
-                    });
-                  }
-                } catch (error: any) {
-                  console.error("Error sorting songs:", error);
-                  toast.error("Failed to sort songs " + error?.message, {
-                    id: "songs",
-                  });
-                } finally {
-                  setOpen(false);
-                  queryClient.refetchQueries({
-                    queryKey: ["songs"],
-                  });
+                  await handleSortDialogButton(secret, queryClient, setSecret, setOpen);
+                } catch (error) {
+                  console.error('Error in sort operation:', error);
                 }
               }}
             >
@@ -172,3 +153,5 @@ export default function SortSongsDialog({unmatched}: {unmatched: string[]}) {
     </div>
   );
 }
+
+

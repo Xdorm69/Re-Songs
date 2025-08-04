@@ -1,4 +1,4 @@
-"use client";
+
 import {
   useReactTable,
   getCoreRowModel,
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table";
 import SortSongsDialog from "./SortSongsDialog";
 import StatisticsCompt from "./StatisticsCompt";
+import { SongResponseData } from "./Types/SongTableResponseType";
 
 // 🧱 Columns definition
 const columns: ColumnDef<{ artist: string; category: string; song: string }>[] =
@@ -30,18 +31,11 @@ const columns: ColumnDef<{ artist: string; category: string; song: string }>[] =
     { accessorKey: "song", header: "Song" },
   ];
 
-export type responseData = {
-  status: "success" | "error";
-  categories_count: number;
-  artists_count: number;
-  songs_count: number;
-  matched: { category: string; artist: string; song: string }[];
-  unmatched: string[];
-};
 
-export default function SongTable({ data }: { data: responseData }) {
+
+export default function SongTable({ data }: { data: SongResponseData }) {
   const [globalFilter, setGlobalFilter] = useState("");
-
+  
   const table = useReactTable({
     data: data?.matched,
     columns,
