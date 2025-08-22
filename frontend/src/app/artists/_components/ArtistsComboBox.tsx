@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react";
-import { ArtistDataType } from "../page";
 import { Check, ChevronsUpDown } from "lucide-react";
 import {
   Popover,
@@ -17,16 +16,14 @@ import {
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ArtistsPageSortParamsPropsType } from "./SortFeatures";
+import { ArtistDataType } from "../page";
 
 export function ArtistsCombobox({
   sortParams,
-  data,
   setSortParams,
-}: {
-  sortParams: { category: string; artist: string };
-  data: ArtistDataType[];
-  setSortParams: (params: { category: string; artist: string }) => void;
-}) {
+  data
+}: ArtistsPageSortParamsPropsType & { data: ArtistDataType[] | any }) {
   const [open, setOpen] = useState(false);
   const selectedArtist = sortParams.artist;
 
@@ -54,7 +51,7 @@ export function ArtistsCombobox({
           <CommandInput placeholder="Search artists..." />
           <CommandEmpty>No artist found.</CommandEmpty>
           <CommandGroup>
-            {data?.map((a) => (
+            {data?.map((a: ArtistDataType) => (
               <CommandItem
                 key={a.artist}
                 value={a.artist}

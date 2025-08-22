@@ -1,68 +1,34 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import HoverCard from "./_components/HoverCard";
-import { getBackendUrl } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { SortFeatures } from "./_components/SortFeatures";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import ArtistDialog from "./_components/ArtistDialog";
+import { FetchArtists } from "./FetchArtists";
 
 export type ArtistDataType = {
   artist: string;
   category: string;
   imgSrc: string;
-  songs: string[];
+  songs: string;
 };
 
 const ArtistsPage = () => {
   const [sortParams, setSortParams] = useState({
     category: "",
     artist: "",
+    page: 1,
   });
-  const [page, setPage] = useState(1);
 
   const artistsData: ArtistDataType[] | any = useQuery({
-    queryKey: ["artists"],
-    queryFn: async () => {
-      try {
-        const res = await fetch(
-          getBackendUrl() +
-            "/api/artists?category=" +
-            sortParams.category +
-            "&artist=" +
-            sortParams.artist +
-            "&page=" +
-            page +
-            "&limit=10"
-        );
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.error || "Failed to fetch artists");
-        }
-        const data = await res.json();
-        return data;
-      } catch (err: any) {
-        console.error("Error fetching artists", err?.message);
-        toast.error(err?.message || "Failed to fetch artists", {
-          id: "artists",
-        });
-      }
-    },
+    queryKey: ["artists", sortParams],
+    queryFn: () => FetchArtists({ sortParams }),
     refetchOnWindowFocus: false,
+    refetchOnMount: true,
     gcTime: 10 * 60 * 1000, //10mins
     staleTime: 10 * 60 * 1000,
   });
-
-  useEffect(() => {
-    setPage(1);
-    artistsData.refetch();
-  }, [sortParams]);
-
-  useEffect(() => {
-    artistsData.refetch();
-  }, [page]);
 
   return (
     <div className="my-15 max-w-6xl mx-auto">
@@ -91,29 +57,40 @@ const ArtistsPage = () => {
             ))}
           </div>
         )}
-        {artistsData?.isSuccess &&
-          artistsData.data.map((artist: ArtistDataType, id: number) => (
-            <HoverCard
-              key={id}
-              artist={artist.artist}
-              category={artist.category}
-              imgSrc={artist.imgSrc}
-              songs={artist.songs}
-            />
-          ))}
+
+        {artistsData.isSuccess && artistsData.data.length > 0
+          ? artistsData.data.map((artist: ArtistDataType, id: number) => (
+              <HoverCard
+                key={id}
+                artist={artist.artist}
+                category={artist.category}
+                imgSrc={artist.imgSrc}
+                songs={artist.songs}
+              />
+            ))
+          : !artistsData.isLoading && <p>No artists found</p>}
+        {artistsData.isError && (
+          <div className="flex items-center justify-center">
+            <p className="text-red-500">Failed to fetch artists</p>
+          </div>
+        )}
         <div className="flex justify-center items-center mt-16 gap-4">
           <Button
             variant={"outline"}
-            onClick={() => setPage(page - 1)}
-            disabled={page === 1}
+            onClick={() =>
+              setSortParams((p) => ({ ...p, page: Math.max(1, p.page - 1) }))
+            }
+            disabled={sortParams.page === 1 || artistsData?.isLoading}
           >
             Previous
           </Button>
-          <span className="mx-2">Page {page}</span>
+          <span className="mx-2">
+            {artistsData?.isLoading ? "Loading..." : `Page ${sortParams.page}`}
+          </span>
           <Button
             variant={"outline"}
-            onClick={() => setPage(page + 1)}
-            disabled={artistsData?.data?.length < 10}
+            onClick={() => setSortParams((p) => ({ ...p, page: p.page + 1 }))}
+            disabled={artistsData?.isLoading || artistsData.data.length < 10}
           >
             Next
           </Button>

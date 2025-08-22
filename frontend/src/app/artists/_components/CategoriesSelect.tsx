@@ -7,19 +7,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ArtistsPageSortParamsPropsType } from "./SortFeatures";
 
 export const CategoriesSelect = ({
   sortParams,
   setSortParams,
-}: {
-  sortParams: { category: string; artist: string };
-  setSortParams: (params: { category: string; artist: string }) => void;
-}) => {
+}: ArtistsPageSortParamsPropsType) => {
   return (
     <>
       <Select
         value={sortParams.category}
-        onValueChange={(val) => setSortParams({ ...sortParams, category: val })}
+        onValueChange={(val) =>
+          setSortParams({ ...sortParams, category: val, page: 1 })
+        }
       >
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Select a category" />

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import React, { useRef } from "react";
 import MatchRateComp from "./MatchRateComp";
+import CountUp from "@/components/CountUp";
 
 export default function StatisticsCompt({ data }: { data: SongResponseData }) {
   const stats: {
@@ -77,7 +78,11 @@ export default function StatisticsCompt({ data }: { data: SongResponseData }) {
                   {stat.label}
                 </p>
                 <p className={`text-2xl font-semibold ${stat.color}`}>
-                  {stat.value}
+                  {stat.label !== "Match Rate" ? (
+                    <CountUp from={0} to={Number(stat.value)} />
+                  ) : (
+                    stat.value
+                  )}
                 </p>
               </div>
               <div

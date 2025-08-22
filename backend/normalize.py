@@ -132,5 +132,3 @@ def rename_all():
             print(f"[Error] Prefixing artist from JSON for {song_file}: {e}")
     
     return count_renamed
-
-rename_all()

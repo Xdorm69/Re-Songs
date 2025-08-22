@@ -14,7 +14,7 @@ const HoverCard = ({
   category: string;
   artist: string;
   imgSrc: string;
-  songs: string[];
+  songs: string;
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const hoverRef = useRef<HTMLDivElement>(null);
@@ -131,7 +131,7 @@ const HoverCard = ({
             {CapitalizeName(category)} Artist
           </p>
         </div>
-        <div>Songs: {songs.length}</div>
+        <div>Songs: {songs}</div>
       </div>
     </div>
   );

@@ -1,13 +1,17 @@
 import { Button } from "@/components/ui/button";
+import { ArtistsPageSortParamsPropsType } from "./SortFeatures";
 
 export const ClearPreferences = ({
+  sortParams,
   setSortParams,
-}: {
-  setSortParams: (params: { category: string; artist: string }) => void;
-}) => {
+}: ArtistsPageSortParamsPropsType) => {
   return (
     <>
-      <Button onClick={() => setSortParams({ artist: "", category: "" })}>
+      <Button
+        onClick={() =>
+          setSortParams({ ...sortParams, artist: "", category: "", page: 1 })
+        }
+      >
         Clear
       </Button>
     </>

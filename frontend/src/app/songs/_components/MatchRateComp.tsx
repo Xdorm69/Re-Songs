@@ -31,7 +31,6 @@ const MatchRateComp = forwardRef<HTMLDivElement, MatchRateCompProps>(
           trigger: containerRef.current,
           start: "top 80%",
           end: "top 20%",
-          markers: process.env.NODE_ENV === "development",
         },
       });
     }, [data]);
